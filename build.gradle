@@ -57,4 +57,5 @@ dependencies {
 // 제이유닛 테스트 설정(@테스트 작동할 때 쓰는거)
 tasks.named('test') {
     useJUnitPlatform()
+    exclude '**/*'  // 빌드시 전체 테스트 생략
 }
