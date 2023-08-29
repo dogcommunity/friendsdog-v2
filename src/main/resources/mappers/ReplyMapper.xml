@@ -8,8 +8,8 @@
     <!--  댓글 등록-->
     <insert id="save">
         INSERT INTO tbl_reply
-        (board_no, pet_no, pet_name, comment, reply_date_time, pet_photo)
-        VALUES (#{boardNo},#{petNo},#{petName},#{comment},#{replyDateTime}, #{petPhoto})
+            (board_no, pet_no, comment, reply_date_time)
+        VALUES (#{boardNo},#{petNo},#{comment},#{replyDateTime})
     </insert>
 
 
@@ -17,11 +17,12 @@
 
     <select id="findAll" resultType="reply">
         SELECT
-        b.board_no, b.pet_no, a.reply_no ,
-        a.comment , a.reply_date_time, b.pet_name, b.pet_photo
+        b.board_no, c.pet_no, a.reply_no ,
+        a.comment , a.reply_date_time, c.pet_name, c.pet_photo
         FROM tbl_reply a
         INNER JOIN tbl_board b
         ON a.board_no = b.board_no
+        INNER JOIN tbl_pet c ON a.pet_no = c.pet_no
         WHERE b.board_no = #{boardNo}
         ORDER BY reply_date_time DESC
     </select>
@@ -31,11 +32,11 @@
 
     <select id="findOne" resultType="reply">
         SELECT
-            b.board_no, b.pet_no, a.reply_no ,
-            a.comment , a.reply_date_time, b.pet_name, b.pet_photo
+            b.board_no, c.pet_no, a.reply_no ,
+            a.comment , a.reply_date_time, c.pet_name, c.pet_photo
         FROM tbl_reply a
-                 INNER JOIN tbl_board b
-                            ON a.board_no = b.board_no
+                 INNER JOIN tbl_board b ON a.board_no = b.board_no
+                 INNER JOIN tbl_pet c ON a.pet_no = c.pet_no
         WHERE reply_no = #{replyNo};
     </select>
 
