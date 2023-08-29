@@ -9,16 +9,14 @@ import company.friendsdog.dogcommunity.repository.PetMapper;
 import company.friendsdog.dogcommunity.service.BoardService;
 import company.friendsdog.dogcommunity.service.PetService;
 import company.friendsdog.dogcommunity.util.LoginUtil;
-import company.friendsdog.dogcommunity.util.upload.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.List;
 
 import static company.friendsdog.dogcommunity.util.LoginUtil.getCurrentLoginUser;
@@ -50,41 +48,13 @@ public class PetController {
     return "pet/profile";
   }
 
-
-//  @PostMapping("/upload-file")
-//
-//  public String uploadForm(@RequestParam("thumbnail") MultipartFile file) {
-//    log.info("file-name: {}", file.getOriginalFilename());
-//    log.info("file-size: {}KB", (double) file.getSize() / 1024);
-//    log.info("file-type: {}", file.getContentType());
-//
-////    String filePath = FileUtil.uploadFile(file, rootPath);
-//
-//    return "redirect:/upload-form";
-//  }
-
-
-  @Value("${file-upload.root-path}")
-  private String rootPath;
-
   // 펫 카드 정보 저장
   @PostMapping("/profile")
-  public String petCardMake(PetProfileRequestDTO dto, HttpSession session) {
+  public String petCardMake(PetProfileRequestDTO dto, HttpSession session) throws IOException {
     log.info("펫 입력 정보 : {}", dto);
-//    log.info("세션 : {}", session);
 
-    // 파일 업로드
-    String savePath = null;
-    MultipartFile petPhoto = dto.getPetPhoto();
-    log.info("프로필사진 이름: {}", petPhoto.getOriginalFilename());
+    boolean petSave = petService.petCardMake(dto, session);
 
-    if (!petPhoto.isEmpty()) {
-      // 실제 로컬 스토리지에 파일을 업로드하는 로직
-      savePath = FileUtil.uploadFile(petPhoto, rootPath);
-    }
-
-    boolean petSave = petService.petCardMake(dto, session, savePath);
-//    log.info("펫 저장 : {}", petSave);
     Pet loginPet = petMapper.userFindPet(LoginUtil.getCurrentLoginUser(session).getUserNo());
     session.setAttribute("loginPet",loginPet);
 
@@ -130,7 +100,7 @@ public class PetController {
 
     // 서비스에 dto(클라이언트에서 수정된값) + 세션에서 받아온 유저넘버 같이 넘겨주기 <=해결
 
-    boolean flag = petService.modify(dto, petNo, rootPath);
+//    boolean flag = petService.modify(dto, petNo, rootPath);
 
     //어디로 이동할지 정하기
     return "redirect:/pet/modify";
@@ -149,11 +119,11 @@ public class PetController {
     model.addAttribute("noneSidebar", true);
 
     String addr = LoginUtil.getCurrentLoginUser(session).getAddr();
-    List<Pet> foundPet = petService.findNeighbor(addr, page);
+    List<Pet> petList = petService.findNeighbor(addr, page);
     PageMaker maker = new PageMaker(page, petService.petCount(addr));
 
     model.addAttribute("addr", addr);
-    model.addAttribute("petList", foundPet);
+    model.addAttribute("petList", petList);
     model.addAttribute("p", page);
     model.addAttribute("maker", maker);
 
@@ -170,7 +140,6 @@ public class PetController {
   }
 
   //프로필 조회 요청
-
   @GetMapping("/detail")
   public Pet detail(Long petNo) {
 

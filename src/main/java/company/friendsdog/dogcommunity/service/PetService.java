@@ -1,6 +1,7 @@
 
 package company.friendsdog.dogcommunity.service;
 
+import company.friendsdog.dogcommunity.aws.S3Service;
 import company.friendsdog.dogcommunity.dto.PetProfileModifyRequestDTO;
 import company.friendsdog.dogcommunity.dto.page.Page;
 import company.friendsdog.dogcommunity.dto.request.PetProfileRequestDTO;
@@ -12,115 +13,134 @@ import company.friendsdog.dogcommunity.util.upload.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PetService {
-  private final PetMapper petMapper;
+    private final PetMapper petMapper;
+    private final S3Service s3Service;
+
+    // 펫 카드 저장하기
+    public boolean petCardMake(final PetProfileRequestDTO dto
+        , final HttpSession session) throws IOException {
+
+        User sUser = LoginUtil.getCurrentLoginUser(session);
+
+        Pet newPet = Pet.builder()
+            .userNo(sUser.getUserNo())
+            .petName(dto.getPetName())
+            .petAge(dto.getPetAge())
+            .petKind(dto.getPetKind())
+            .petGender(dto.getPetGender())
+            .petPhoto(uploadFile(dto.getPetPhoto()))
+            .hashtag(dto.getHashtag())
+            .addr(sUser.getAddr())
+            .addDetail(sUser.getAddDetail())
+            .build();
+
+        return petMapper.save(newPet);
+
+    }
+
+    // 파일 업로드
+    public String uploadFile(
+        MultipartFile originalFil
+    ) throws IOException {
+        // 파일명 유니크하게 변경
+        String uniqueFileName = UUID.randomUUID() + "_" + originalFil.getOriginalFilename();
+
+        // 파일을 s3 버킷에 저장
+        String uploadUrl = s3Service.uploadToS3Bucket(originalFil.getBytes(), uniqueFileName);
+
+        return uploadUrl;
+    }
+    public String getFilePath(Long petNo) {
+        Pet pet = petMapper.findOne(petNo);
+        return pet.getPetPhoto();
+    }
+
+    // ㅇㅇ동에 있는 모든 강아지 찾기
+    public List<Pet> findNeighbor(String addr, Page page) {
+        log.info("선택한 동네 : {}", addr);
+        System.out.println("page : " + page);
+        List<Pet> petByAddr = petMapper.findPetByAddr(addr, page);
+        System.out.println("petByAddr = " + petByAddr);
+        return petByAddr;
+    }
+
+    // ㅇㅇ동 강아지 수
+    public int petCount(String addr) {
+        return petMapper.petCount(addr);
+    }
 
 
-  // 펫 카드 저장하기
-  public boolean petCardMake(final PetProfileRequestDTO dto
-      , final HttpSession session, final String savePath) {
-    User sUser = LoginUtil.getCurrentLoginUser(session);
-    Pet newPet=Pet.builder()
-        .userNo(sUser.getUserNo())
-        .petName(dto.getPetName())
-        .petAge(dto.getPetAge())
-        .petKind(dto.getPetKind())
-        .petGender(dto.getPetGender())
-        .petPhoto(savePath)
-        .hashtag(dto.getHashtag())
-        .addr(sUser.getAddr())
-        .addDetail(sUser.getAddDetail())
-        .build();
+    public boolean delete(Long petNo) {
+        return petMapper.delete(petNo);
+    }
 
-    return petMapper.save(newPet);
+    // 조회
+    //DTO 필요없지 않나 다 조회 하닌깐
+    // 보여야 할 정 보가 있으면 DTO 만들어서 SET / GET
+    public Pet getDetail(Long petNo) {
 
-  }
+        Pet pet = petMapper.findOne(petNo);
 
-  // ㅇㅇ동에 있는 모든 강아지 찾기
-  public List<Pet> findNeighbor(String addr, Page page){
-    log.info("선택한 동네 : {}",addr);
-    System.out.println("page : "+page);
-    List<Pet> petByAddr = petMapper.findPetByAddr(addr,page);
-    System.out.println("petByAddr = " + petByAddr);
-    return petByAddr;
-  }
-  // ㅇㅇ동 강아지 수
-  public int petCount(String addr){
-    return petMapper.petCount(addr);
-  }
+        return pet;
+        //조회수 상승 처리? 해야하나
 
 
+    }
 
 
+    //수정 요청 하면  컨트롤러가 다시 수정을 요청한다. 수정창
+    //업로드 받은 파일 DB 에 담을 수 없다...
+    public boolean modify(PetProfileModifyRequestDTO dto, Long petNo, String rootPath) {
+        log.info("선택한 동네 : {}", dto);
+        log.info("선택한 동네 : {}", petNo);
+        // 유저 넘버로 펫 찾기
+        // 하나 하나 로그 찍어보기
+        Pet pet = new Pet();
 
 
-  public boolean delete(Long petNo) {
-    return petMapper.delete(petNo);
-  }
+        // 파일 저장 하고 그 경로를 리턴
+        String imgPath = FileUtil.uploadFile(dto.getPetPhoto(), rootPath);
+        log.info("선택한 동네 : {}", dto);
+        String local = "/local";
+        log.info("선택한 동네 : {}", dto);
+        String fullLocal = local + imgPath;
+        log.info("선택한 동네 : {}", dto);
 
-  // 조회
-  //DTO 필요없지 않나 다 조회 하닌깐
-  // 보여야 할 정 보가 있으면 DTO 만들어서 SET / GET
-  public Pet getDetail(Long petNo) {
-
-    Pet pet = petMapper.findOne(petNo);
-
-    return pet;
-    //조회수 상승 처리? 해야하나
-
-
-  }
-
-
-  //수정 요청 하면  컨트롤러가 다시 수정을 요청한다. 수정창
-  //업로드 받은 파일 DB 에 담을 수 없다...
-  public boolean modify(PetProfileModifyRequestDTO dto, Long petNo, String rootPath) {
-    log.info("선택한 동네 : {}",dto);
-    log.info("선택한 동네 : {}",petNo);
-    // 유저 넘버로 펫 찾기
-  // 하나 하나 로그 찍어보기
-    Pet pet = new Pet();
-
-
-    // 파일 저장 하고 그 경로를 리턴
-    String imgPath = FileUtil.uploadFile(dto.getPetPhoto(),rootPath);
-    log.info("선택한 동네 : {}",dto);
-    String local = "/local";
-    log.info("선택한 동네 : {}",dto);
-    String fullLocal = local + imgPath;
-    log.info("선택한 동네 : {}",dto);
-
-    pet.setPetNo(petNo);
-    pet.setHashtag(dto.getHashtag());
-    pet.setPetPhoto(fullLocal);
+        pet.setPetNo(petNo);
+        pet.setHashtag(dto.getHashtag());
+        pet.setPetPhoto(fullLocal);
 //    pet.setPetPhoto(dto.getPetPhoto());
-    pet.setPetKind(dto.getPetKind());
+        pet.setPetKind(dto.getPetKind());
 //    pet.setPetPhoto(String.valueOf(dto.getPetPhoto()));
-    return petMapper.modify(pet);
-  }
+        return petMapper.modify(pet);
+    }
 
 
-  public Pet findOne(Long  petNo) {
+    public Pet findOne(Long petNo) {
 //    log.info("userNo : {}", userNo);
-    Pet foundPet = petMapper.findOne(petNo);
-    log.info(" petNo {}", petNo);
-    return foundPet;
-  }
+        Pet foundPet = petMapper.findOne(petNo);
+        log.info(" petNo {}", petNo);
+        return foundPet;
+    }
 
-  public Pet userFindPet(HttpSession session) {
+    public Pet userFindPet(HttpSession session) {
 
-    Long userNo = LoginUtil.getCurrentLoginUser(session).getUserNo();
-    Pet myPet = petMapper.userFindPet(userNo);
-    log.info("기존 펫 정보 : {}",myPet);
+        Long userNo = LoginUtil.getCurrentLoginUser(session).getUserNo();
+        Pet myPet = petMapper.userFindPet(userNo);
+        log.info("기존 펫 정보 : {}", myPet);
 
-    return myPet;
-  }
+        return myPet;
+    }
 }
 
