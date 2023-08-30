@@ -1,5 +1,5 @@
 # Pet stargram
-<img src="C:\0c0\friendsdog-v2\src\main\resources\static\assets\img\dog.png" width="300" height="250"/>
+<img src="https://github.com/dogcommunity/friendsdog-v2/blob/master/src/main/resources/static/assets/img/dog.png?raw=true" width="300" height="250"/>
 
 개발 기간 : 23.05.09 - 23.05.26
 
