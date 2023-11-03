@@ -7,6 +7,10 @@
 ## 📜 프로젝트 소개
 ‘주인’ 위주의 소통이 아닌, ‘반려견’을 중심으로 한  소통 커뮤니티입니다.
 
+![image](https://github.com/dogcommunity/friendsdog-v2/assets/120666603/33be9758-973f-49f7-a51d-65de000d116a)
+![image](https://github.com/dogcommunity/friendsdog-v2/assets/120666603/b60ab438-0724-4c17-a4da-038f975b4453)
+
+
 1. **일상 공유**
 
     글보다는 사진을 한눈에 볼 수 있도록 **사진첩**의 형태로 제작하였습니다.
@@ -18,6 +22,8 @@
 3. **위치 기반의 편의시설 제공**
 
     반려견과 **동반 가능한 장소**들을 지도를 통해 한눈에 보기 쉽도록 만들었습니다.
+
+![image](https://github.com/dogcommunity/friendsdog-v2/assets/120666603/47379988-59cc-4712-9519-50090ca5edb5)
 
 </br>
 
@@ -32,32 +38,19 @@
 <img src="https://img.shields.io/badge/mariaDB-003545?style=for-the-badge&logo=mariaDB&logoColor=white"> 
 <img src="https://img.shields.io/badge/bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white">
 
+</br>
+
 
 ## 팀원 소개
-- 정동관 (팀장)
-    - 게시글 카드
-    - 디테일 모달창
-    - 프로필 카드
-    - 서버 연결 및 댓글 비동기 처리
-- 구빛나
-    - 로그인 & 회원가입 구현 및 검증
-    - 펫 프로필 작성, 수정 페이지
-    - 메세지 보내기 프론트 구현
-    - 게시글 작성 페이지
-    - 전체적인 웹 페이지 구상
-- 채지원
-    - 깃 관리
-    - 주변 친구 찾기, 주변 편의시설 찾기 게시판 구현
-    - 펫 카드 생성 및 조회 프론트 구현
-    - 로그인 및 회원가입 백엔드 구현
-    - 벡엔드 구조 설계 및 프로그램 오류 수정
-- 윤영식
-    - 프로젝트 계획
-    - entity 구조 설계
-    - 게시판 구현
-    - 댓글 구현 및 게시판 오류 수정
-- 이진수
-    - 프로필 카드 수정 및 업로드 기능 구현
-    - 댓글 기능 구현
-    - DB 테이블 형성 및 데이터 관리
-    - ERD 작성
+
+![image](https://github.com/dogcommunity/friendsdog-v2/assets/120666603/115f2fd5-8548-4c2e-8e44-a46b14039be1)
+
+</br>
+
+## 서비스 기획 및 방향성 설계
+![image](https://github.com/dogcommunity/friendsdog-v2/assets/120666603/9be28cc5-ab42-4256-936c-b56f405a27b4)
+
+### ERD
+![image](https://github.com/dogcommunity/friendsdog-v2/assets/120666603/4fa6ab04-7ea3-4441-a025-e6d9d78edbc9)
+
+
